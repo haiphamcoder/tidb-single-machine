@@ -1,0 +1,326 @@
+services:
+  
+  # Placement Driver 1
+  placement-driver-server-1:
+    image: pingcap/pd:${TIDB_IMAGE_VERSION}
+    container_name: placement-driver-server-1
+    ports:
+      - "2379"
+      - "2380"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command:
+      - --name=placement-driver-server-1
+      - --client-urls=http://0.0.0.0:2379
+      - --peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://placement-driver-server-1:2379
+      - --advertise-peer-urls=http://placement-driver-server-1:2380
+      - --initial-cluster=placement-driver-server-1=http://placement-driver-server-1:2380,placement-driver-server-2=http://placement-driver-server-2:2380,placement-driver-server-3=http://placement-driver-server-3:2380
+      - --data-dir=/data/placement-driver-server-1
+      - --config=/pd.toml
+      - --log-file=/logs/placement-driver-server-1.log
+    volumes:
+      - ./config/placement-driver/pd.toml:/pd.toml:ro
+      - ./data:/data
+      - ./logs:/logs
+    restart: on-failure
+    networks:
+      - tidb-net
+
+  # Placement Driver 2
+  placement-driver-server-2:
+    image: pingcap/pd:${TIDB_IMAGE_VERSION}
+    container_name: placement-driver-server-2
+    ports:
+      - "2379"
+      - "2380"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command:
+      - --name=placement-driver-server-2
+      - --client-urls=http://0.0.0.0:2379
+      - --peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://placement-driver-server-2:2379
+      - --advertise-peer-urls=http://placement-driver-server-2:2380
+      - --initial-cluster=placement-driver-server-1=http://placement-driver-server-1:2380,placement-driver-server-2=http://placement-driver-server-2:2380,placement-driver-server-3=http://placement-driver-server-3:2380
+      - --data-dir=/data/placement-driver-server-2
+      - --config=/pd.toml
+      - --log-file=/logs/placement-driver-server-2.log
+    volumes:
+      - ./config/placement-driver/pd.toml:/pd.toml:ro
+      - ./data:/data
+      - ./logs:/logs
+    restart: on-failure
+    networks:
+      - tidb-net
+
+  # Placement Driver 3
+  placement-driver-server-3:
+    image: pingcap/pd:${TIDB_IMAGE_VERSION}
+    container_name: placement-driver-server-3
+    ports:
+      - "2379"
+      - "2380"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command:
+      - --name=placement-driver-server-3
+      - --client-urls=http://0.0.0.0:2379
+      - --peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://placement-driver-server-3:2379
+      - --advertise-peer-urls=http://placement-driver-server-3:2380
+      - --initial-cluster=placement-driver-server-1=http://placement-driver-server-1:2380,placement-driver-server-2=http://placement-driver-server-2:2380,placement-driver-server-3=http://placement-driver-server-3:2380
+      - --data-dir=/data/placement-driver-server-3
+      - --config=/pd.toml
+      - --log-file=/logs/placement-driver-server-3.log
+    volumes:
+      - ./config/placement-driver/pd.toml:/pd.toml:ro
+      - ./data:/data
+      - ./logs:/logs
+    restart: on-failure
+    networks:
+      - tidb-net
+
+  # TiKV 1
+  tikv-server-1:
+    image: pingcap/tikv:${TIDB_IMAGE_VERSION}
+    container_name: tikv-server-1
+    ports:
+      - "20160"
+      - "20180"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command: 
+      - --addr=0.0.0.0:20160
+      - --advertise-addr=tikv-server-1:20160
+      - --status-addr=0.0.0.0:20180
+      - --advertise-status-addr=tikv-server-1:20180
+      - --data-dir=/data/tikv-server-1
+      - --pd=placement-driver-server-1:2379,placement-driver-server-2:2379,placement-driver-server-3:2379
+      - --config=/tikv.toml
+      - --log-file=/logs/tikv-server-1.log
+    volumes:
+      - ./config/tikv/tikv.toml:/tikv.toml:ro
+      - ./data:/data
+      - ./logs:/logs
+    depends_on:
+      - placement-driver-server-1
+      - placement-driver-server-2
+      - placement-driver-server-3
+    restart: on-failure
+    networks:
+      - tidb-net
+
+  # TiKV 2
+  tikv-server-2:
+    image: pingcap/tikv:${TIDB_IMAGE_VERSION}
+    container_name: tikv-server-2
+    ports:
+      - "20160"
+      - "20180"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command: 
+      - --addr=0.0.0.0:20160
+      - --advertise-addr=tikv-server-2:20160
+      - --status-addr=0.0.0.0:20180
+      - --advertise-status-addr=tikv-server-2:20180
+      - --data-dir=/data/tikv-server-2
+      - --pd=placement-driver-server-1:2379,placement-driver-server-2:2379,placement-driver-server-3:2379
+      - --config=/tikv.toml
+      - --log-file=/logs/tikv-server-2.log
+    volumes:
+      - ./config/tikv/tikv.toml:/tikv.toml:ro
+      - ./data:/data
+      - ./logs:/logs
+    depends_on:
+      - placement-driver-server-1
+      - placement-driver-server-2
+      - placement-driver-server-3
+    restart: on-failure
+    networks:
+      - tidb-net
+
+  # TiKV 3
+  tikv-server-3:
+    image: pingcap/tikv:${TIDB_IMAGE_VERSION}
+    container_name: tikv-server-3
+    ports:
+      - "20160"
+      - "20180"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command: 
+      - --addr=0.0.0.0:20160
+      - --advertise-addr=tikv-server-3:20160
+      - --status-addr=0.0.0.0:20180
+      - --advertise-status-addr=tikv-server-3:20180
+      - --data-dir=/data/tikv-server-3
+      - --pd=placement-driver-server-1:2379,placement-driver-server-2:2379,placement-driver-server-3:2379
+      - --config=/tikv.toml
+      - --log-file=/logs/tikv-server-3.log
+    volumes:
+      - ./config/tikv/tikv.toml:/tikv.toml:ro
+      - ./data:/data
+      - ./logs:/logs
+    depends_on:
+      - placement-driver-server-1
+      - placement-driver-server-2
+      - placement-driver-server-3
+    restart: on-failure
+    networks:
+      - tidb-net
+
+  # TiDB Server
+  tidb-server:
+    image: pingcap/tidb:${TIDB_IMAGE_VERSION}
+    container_name: tidb-server
+    ports:
+      - "4000:4000"
+      - "10080:10080"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command: 
+      - --store=tikv
+      - --path=placement-driver-server-1:2379,placement-driver-server-2:2379,placement-driver-server-3:2379
+      - --config=/tidb.toml
+      - --log-file=/logs/tidb.log
+      - --advertise-address=tidb-server
+      - --metrics-addr=0.0.0.0:10080
+    volumes:
+      - ./config/tidb/tidb.toml:/tidb.toml:ro
+      - ./logs:/logs
+    depends_on:
+      - tikv-server-1
+      - tikv-server-2
+      - tikv-server-3
+    restart: on-failure
+    networks:
+      - tidb-net
+
+  tiflash-server-1:
+    image: pingcap/tiflash:${TIDB_IMAGE_VERSION}
+    container_name: tiflash-server-1
+    ports:
+      - "3930"
+      - "20170"
+      - "8234"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command:
+      - --config=/tiflash.toml
+    volumes:
+      - ./config/tiflash/tiflash-server-1.toml:/tiflash.toml:ro
+      - ./data:/data
+      - ./logs:/logs
+    restart: on-failure
+    depends_on:
+      - tidb-server
+    networks:
+      - tidb-net
+
+  tiflash-server-2:
+    image: pingcap/tiflash:${TIDB_IMAGE_VERSION}
+    container_name: tiflash-server-2
+    ports:
+      - "3930"
+      - "20170"
+      - "8234"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command:
+      - --config=/tiflash.toml
+    volumes:
+      - ./config/tiflash/tiflash-server-2.toml:/tiflash.toml:ro
+      - ./data:/data
+      - ./logs:/logs
+    restart: on-failure
+    depends_on:
+      - tidb-server
+    networks:
+      - tidb-net
+
+  tiflash-server-3:
+    image: pingcap/tiflash:${TIDB_IMAGE_VERSION}
+    container_name: tiflash-server-3
+    ports:
+      - "3930"
+      - "20170"
+      - "8234"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command:
+      - --config=/tiflash.toml
+    volumes:
+      - ./config/tiflash/tiflash-server-3.toml:/tiflash.toml:ro
+      - ./data:/data
+      - ./logs:/logs
+    restart: on-failure
+    depends_on:
+      - tidb-server
+    networks:
+      - tidb-net
+
+  # Monitors
+
+  ## Node Exporter
+  node-exporter:
+    image: prom/node-exporter
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command:
+      - --log.level=error
+      - --web.listen-address=0.0.0.0:9100
+    restart: on-failure
+    networks:
+      - tidb-net
+
+  ## Prometheus
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    user: "0"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    command: 
+      - --log.level=error
+      - --storage.tsdb.path=/data/prometheus
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/prometheus/pd.rules.yml:/etc/prometheus/pd.rules.yml:ro
+      - ./config/prometheus/tikv.rules.yml:/etc/prometheus/tikv.rules.yml:ro
+      - ./config/prometheus/tidb.rules.yml:/etc/prometheus/tidb.rules.yml:ro
+      - ./data:/data
+    restart: on-failure
+    networks:
+      - tidb-net
+
+  # Grafana
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    user: "0"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - GF_LOG_LEVEL=error
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
+    volumes:
+      - ./config/grafana:/etc/grafana
+      - ./config/dashboards:/tmp/dashboards
+      - ./data/grafana:/var/lib/grafana
+    restart: on-failure
+    networks:
+      - tidb-net
+
+networks:
+  tidb-net:
+    driver: bridge

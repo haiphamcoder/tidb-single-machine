@@ -1,0 +1,30 @@
+## TiFlash Configuration File
+
+## TiFlash Server Configurations
+server-id = 1
+log-level = "info"
+
+## Paths for TiFlash data and logs
+path = "/data/tiflash-server-2"
+path_realtime_mode = false
+logger.log = "/logs/tiflash-server-2.log"
+logger.errorlog = "/logs/tiflash-server-2_error.log"
+
+## Configuration for TiDB cluster
+## Replace 'placement-driver-server-1' with the correct hostname of your PD server
+## Multiple PD servers can be separated by commas
+pd-addr = "placement-driver-server-1:2379,placement-driver-server-2:2379,placement-driver-server-3:2379"
+
+## Flash Proxy Configurations
+## TiFlash uses a built-in proxy for compatibility with TiDB
+[flash]
+service_addr = "0.0.0.0:3930"
+service_advertise_addr = "tiflash-server-2:3930"
+metrics_port = 8234
+http_port = 8123
+
+[flash.proxy]
+proxy_addr = "0.0.0.0:20170"
+proxy_advertise_addr = "tiflash-server-2:20170"
+server-addr = "0.0.0.0:3930"
+log-file = "/logs/proxy.log"
